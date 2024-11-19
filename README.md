@@ -95,6 +95,7 @@ Mobile
 - `styles.css`: CSS styles for the app
 - `js/config.js`: Configuration file for the API key
 - `js/app.js`: JavaScript logic for the app
+- `images/cloudy.png`: Favicon for the app
 
 ## Development Features
 
