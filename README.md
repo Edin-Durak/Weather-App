@@ -50,11 +50,8 @@ A sleek and responsive weather application that provides real-time weather infor
 ### Configuration
 
 1. Get your API key from [OpenWeather](https://openweathermap.org/api)
-2. Replace the API key in `app.js`:
-
-   ```javascript
-   const API_KEY = "YOUR_API_KEY";
-   ```
+2. Copy `js/config.sample.js` to `js/config.js`
+3. Replace `YOUR_API_KEY_HERE` in `config.js` with your actual API key
 
 ## Features in Detail
 

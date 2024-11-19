@@ -2,7 +2,7 @@
 
 class WeatherApp {
   constructor() {
-    this.API_KEY = "0db368783c9990590af7ec04591afe56"; // Your API key
+    this.API_KEY = config.WEATHER_API_KEY;
     this.isMetric = true;
     this.autoRefreshInterval = 30 * 60 * 1000; // 30 minutes
     this.initializeElements();
