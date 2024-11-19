@@ -28,8 +28,13 @@ A sleek and responsive weather application that provides real-time weather infor
 [View Live Demo](#) <!-- Add your deployed app URL here -->
 
 ## Screenshots
+Desktop
+![127 0 0 1_5500_ (10)](https://github.com/user-attachments/assets/cf3b1916-3d1d-465b-9211-8082d0c779fe)
 
-![Weather App Screenshot](screenshots/weather-app.png) <!-- Add your screenshot -->
+Mobile
+
+![127 0 0 1_5500_ (11)](https://github.com/user-attachments/assets/c2199f5f-9b64-41cd-b768-87183130043d)
+
 
 ## Installation
 
