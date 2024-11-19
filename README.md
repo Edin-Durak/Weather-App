@@ -23,10 +23,6 @@ A sleek and responsive weather application that provides real-time weather infor
 - Bootstrap 5
 - Font Awesome Icons
 
-## Live Demo
-
-[View Live Demo](#) <!-- Add your deployed app URL here -->
-
 ## Screenshots
 
 Desktop
@@ -35,7 +31,6 @@ Desktop
 Mobile
 
 ![127 0 0 1_5500_ (11)](https://github.com/user-attachments/assets/c2199f5f-9b64-41cd-b768-87183130043d)
-
 
 ## Installation
 
