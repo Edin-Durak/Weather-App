@@ -93,16 +93,8 @@ Mobile
 
 - `index.html`: Main HTML file
 - `styles.css`: CSS styles for the app
-- `app.js`: JavaScript logic for the app
-
-  weather-app/
-  │
-  ├── index.html # Main HTML file
-  ├── css/
-  │ └── styles.css # Styles and animations
-  ├── js/
-  │ └── app.js # Main JavaScript file
-  └── README.md # Documentation
+- `js/config.js`: Configuration file for the API key
+- `js/app.js`: JavaScript logic for the app
 
 ## Development Features
 
