@@ -37,7 +37,7 @@ Mobile
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/weather-app.git
+   git clone https://github.com/Edin-Durak/Weather-App.git
    ```
 
 2. Navigate to the project directory:
@@ -63,6 +63,7 @@ Mobile
 
 ## Project Structure
 
+```
 weather-app/
 ├── index.html # Main HTML file
 ├── styles.css # Global styles and theme variables
@@ -73,6 +74,7 @@ weather-app/
 │ ├── app.js # Main application logic
 │ └── config.js # API configuration
 └── README.md
+```
 
 ## Configuration Details
 
