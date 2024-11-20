@@ -19,13 +19,28 @@
     />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" type="text/css" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link rel="preload" as="image" href="./images/weather-home.jpg" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   </head>
   <body class="dark-theme">
     <button
@@ -52,7 +67,7 @@
         </div>
 
         <div class="recent-searches">
-          <h3>Recent Searches</h3>
+          <h4>Recent Searches</h4>
           <ul class="recent-list" id="recentSearches">
             <!-- Recent searches will be added here as li elements -->
           </ul>
@@ -70,69 +85,66 @@
           <p>Please connect to the internet to get weather updates</p>
         </div>
 
-        <div class="weather-container">
-          <div id="loader" class="loader d-none">
-            <div class="loader-content">
-              <div class="spinner"></div>
-              <p>Loading weather data...</p>
+        <div id="loader" class="loader d-none">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div id="weatherInfo" class="weather-container d-none">
+          <div class="current-weather">
+            <div class="weather-header">
+              <div class="location-info">
+                <h1 class="city-name"></h1>
+                <div class="datetime-wrapper">
+                  <span class="current-date"></span>
+                  <span class="current-time"></span>
+                </div>
+              </div>
+              <div class="weather-toggle">
+                <button class="unit-toggle" id="unitToggle">°C / °F</button>
+              </div>
+            </div>
+
+            <div class="weather-body">
+              <div class="temperature-container">
+                <div class="current-temp"></div>
+                <div class="weather-description"></div>
+              </div>
+              <div class="weather-icon-large">
+                <!-- Weather icon will be inserted here -->
+              </div>
+            </div>
+
+            <div class="weather-details">
+              <div class="detail-card">
+                <i class="fas fa-temperature-high"></i>
+                <div class="detail-info">
+                  <span class="detail-label">Feels Like</span>
+                  <span class="feels-like"></span>
+                </div>
+              </div>
+              <div class="detail-card">
+                <i class="fas fa-droplet"></i>
+                <div class="detail-info">
+                  <span class="detail-label">Humidity</span>
+                  <span class="humidity"></span>
+                </div>
+              </div>
+              <div class="detail-card">
+                <i class="fas fa-wind"></i>
+                <div class="detail-info">
+                  <span class="detail-label">Wind Speed</span>
+                  <span class="wind-speed"></span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div id="weatherInfo" class="d-none">
-            <div class="current-weather">
-              <div class="weather-header">
-                <div class="location-info">
-                  <h1 class="city-name"></h1>
-                  <div class="datetime-wrapper">
-                    <span class="current-date"></span>
-                    <span class="current-time"></span>
-                  </div>
-                </div>
-                <div class="weather-toggle">
-                  <button class="unit-toggle" id="unitToggle">°C / °F</button>
-                </div>
-              </div>
-
-              <div class="weather-body">
-                <div class="temperature-container">
-                  <div class="current-temp"></div>
-                  <div class="weather-description"></div>
-                </div>
-                <div class="weather-icon-large">
-                  <!-- Weather icon will be inserted here -->
-                </div>
-              </div>
-
-              <div class="weather-details">
-                <div class="detail-card">
-                  <i class="fas fa-temperature-high"></i>
-                  <div class="detail-info">
-                    <span class="detail-label">Feels Like</span>
-                    <span class="feels-like"></span>
-                  </div>
-                </div>
-                <div class="detail-card">
-                  <i class="fas fa-droplet"></i>
-                  <div class="detail-info">
-                    <span class="detail-label">Humidity</span>
-                    <span class="humidity"></span>
-                  </div>
-                </div>
-                <div class="detail-card">
-                  <i class="fas fa-wind"></i>
-                  <div class="detail-info">
-                    <span class="detail-label">Wind Speed</span>
-                    <span class="wind-speed"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="forecast-section">
-              <h2>5-Day Forecast</h2>
-              <div class="forecast-container" id="forecast">
-                <!-- Forecast cards will be inserted here -->
-              </div>
+          <div class="forecast-section">
+            <h2>5-Day Forecast</h2>
+            <div class="forecast-container" id="forecast">
+              <!-- Forecast cards will be inserted here -->
             </div>
           </div>
         </div>

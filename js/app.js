@@ -5,7 +5,14 @@ class WeatherApp {
     this.API_KEY = config.WEATHER_API_KEY;
     this.isMetric = true;
     this.autoRefreshInterval = 30 * 60 * 1000; // 30 minutes
+
+    // First, initialize all elements
     this.initializeElements();
+
+    // Show welcome content before setting up other functionality
+    this.showWelcomeContent();
+
+    // Then initialize the rest
     this.initializeEventListeners();
     this.initializeSidebar();
     this.displayRecentSearches();
@@ -179,7 +186,20 @@ class WeatherApp {
 
   displayWeather(data) {
     this.lastWeatherData = data;
-    this.weatherInfo.classList.remove("d-none");
+
+    // Clear welcome content if it exists
+    const welcomeContent = document.querySelector(".welcome-content");
+    if (welcomeContent) {
+      welcomeContent.remove();
+    }
+
+    // Show weather info
+    const weatherInfo = document.getElementById("weatherInfo");
+    if (weatherInfo) {
+      weatherInfo.classList.remove("d-none");
+    } else {
+      console.error("Weather info container not found!");
+    }
 
     // Add animation reset class
     const weatherCard = document.querySelector(".current-weather");
@@ -200,6 +220,7 @@ class WeatherApp {
     const windSpeed = document.querySelector(".wind-speed");
     const weatherIcon = document.querySelector(".weather-icon-large");
 
+    // Update the weather data
     cityName.textContent = `${data.name}, ${data.sys.country}`;
 
     const cityTime = this.getLocalTime(Date.now(), data.timezone);
@@ -296,48 +317,76 @@ class WeatherApp {
     this.displayRecentSearches();
   }
 
-  displayRecentSearches() {
-    const recent = JSON.parse(localStorage.getItem("recentSearches") || "[]");
-    if (this.recentSearches) {
-      this.recentSearches.innerHTML = recent
-        .map((city) => {
-          // Handle both string and object formats
-          const cityName = typeof city === "string" ? city : city.name;
-          const cityCountry = typeof city === "string" ? "" : city.country;
-          const cityLat = typeof city === "string" ? null : city.lat;
-          const cityLon = typeof city === "string" ? null : city.lon;
+  async displayRecentSearches() {
+    const recentSearches = JSON.parse(
+      localStorage.getItem("recentSearches") || "[]"
+    );
+    const recentList = document.querySelector("#recentSearches");
 
-          if (cityLat && cityLon) {
-            return `
-              <li class="recent-item pointer">
-                <div class="recent-city" onclick="weatherApp.searchCity(${cityLat}, ${cityLon}, '${cityName}')">
-                  <i class="fas fa-history"></i>
-                  <span>${cityName}${
-              cityCountry ? `, ${cityCountry}` : ""
-            }</span>
-                </div>
-                <button class="delete-recent" onclick="weatherApp.deleteRecentSearch('${cityName}')">
-                  <i class="fas fa-times"></i>
-                </button>
-              </li>
-            `;
-          } else {
-            // For old format entries, just show the city name without click functionality
-            return `
-              <li class="recent-item pointer">
-                <div class="recent-city">
-                  <i class="fas fa-history"></i>
-                  <span>${cityName}</span>
-                </div>
-                <button class="delete-recent" onclick="weatherApp.deleteRecentSearch('${cityName}')">
-                  <i class="fas fa-times"></i>
-                </button>
-              </li>
-            `;
-          }
-        })
-        .join("");
-    }
+    // First, update all weather data
+    const updatedSearches = await Promise.all(
+      recentSearches.map(async (city) => {
+        try {
+          const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&units=metric&appid=${this.API_KEY}`
+          );
+          const weatherData = await response.json();
+
+          return {
+            ...city,
+            temp: weatherData.main?.temp ?? 0,
+            weatherIcon: weatherData.weather?.[0]?.icon || "01d",
+          };
+        } catch (error) {
+          return city; // Keep existing data if fetch fails
+        }
+      })
+    );
+
+    // Update localStorage with fresh data
+    localStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
+
+    // Display updated data in the correct element
+    recentList.innerHTML = updatedSearches
+      .map(
+        (city) => `
+                <li class="recent-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="recent-city" onclick="weatherApp.selectLocation(${
+                          city.lat
+                        }, ${city.lon}, '${city.name}')">${city.name}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-1">
+                            ${
+                              city.weatherIcon
+                                ? `
+                                <img 
+                                    src="https://openweathermap.org/img/wn/${city.weatherIcon}.png" 
+                                    alt="Weather icon"
+                                    class="weather-icon-small"
+                                    onerror="this.src='https://openweathermap.org/img/wn/01d.png'"
+                                >
+                            `
+                                : ""
+                            }
+                            <span class="temperature" data-temp="${city.temp}">
+                                ${this.formatTemperature(city.temp)}
+                            </span>
+                        </div>
+                        <button 
+                            class="btn btn-link text-danger p-0" 
+                            onclick="event.stopPropagation(); weatherApp.deleteRecentSearch('${
+                              city.name
+                            }')"
+                        >
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </li>
+            `
+      )
+      .join("");
   }
 
   async searchCity(lat, lon, name) {
@@ -366,13 +415,27 @@ class WeatherApp {
   }
 
   showLoader() {
-    this.loader.classList.remove("d-none");
-    this.weatherInfo.classList.add("d-none");
+    const loader = document.getElementById("loader");
+    const weatherInfo = document.getElementById("weatherInfo");
+
+    if (loader) {
+      loader.classList.remove("d-none");
+    }
+    if (weatherInfo) {
+      weatherInfo.classList.add("d-none");
+    }
   }
 
   hideLoader() {
-    this.loader.classList.add("d-none");
-    this.weatherInfo.classList.remove("d-none");
+    const loader = document.getElementById("loader");
+    const weatherInfo = document.getElementById("weatherInfo");
+
+    if (loader) {
+      loader.classList.add("d-none");
+    }
+    if (weatherInfo) {
+      weatherInfo.classList.remove("d-none");
+    }
   }
 
   showError(message) {
@@ -414,6 +477,12 @@ class WeatherApp {
     this.closeLocationModal();
     this.searchInput.value = name;
 
+    // Clear welcome content if it exists
+    const welcomeContent = document.querySelector(".welcome-content");
+    if (welcomeContent) {
+      welcomeContent.remove();
+    }
+
     try {
       const [weatherResponse, forecastResponse] = await Promise.all([
         fetch(
@@ -445,6 +514,95 @@ class WeatherApp {
         );
       }
     }, this.autoRefreshInterval);
+  }
+
+  formatTemperature(temp) {
+    if (isNaN(temp)) return "0°";
+    const temperature = Math.round(this.isMetric ? temp : (temp * 9) / 5 + 32);
+    return `${temperature}°${this.isMetric ? "C" : "F"}`;
+  }
+
+  toggleUnit() {
+    this.isMetric = !this.isMetric;
+    // Update main weather display
+    this.updateTemperatureDisplay();
+
+    // Update recent searches temperature display
+    const temperatures = document.querySelectorAll(
+      ".recent-searches .temperature"
+    );
+    temperatures.forEach((tempElement) => {
+      const rawTemp = parseFloat(tempElement.dataset.temp);
+      tempElement.textContent = this.formatTemperature(rawTemp);
+    });
+  }
+
+  showWelcomeContent() {
+    const mainContent = document.querySelector(".main-content");
+
+    // Create a new div for welcome content
+    const welcomeDiv = document.createElement("div");
+    welcomeDiv.className = "welcome-content text-center py-5";
+
+    welcomeDiv.innerHTML = `
+      <h1 class="typing-text mb-4"></h1>
+      <div class="welcome-illustration mb-4 animate__animated animate__fadeIn animate__delay-1s">
+        <img src="./images/weather-home.jpg" 
+             alt="Weather illustration" 
+             class="welcome-image"
+             width="400"
+             height="300"
+             loading="lazy"
+             decoding="async"
+        >
+      </div>
+      <div class="welcome-features animate__animated animate__fadeInUp animate__delay-2s">
+        <div class="row g-4 justify-content-center mt-3">
+          <div class="col-md-4">
+            <div class="feature-card">
+              <i class="fas fa-search mb-3"></i>
+              <h2>Search Any City</h2>
+              <p>Get instant weather updates for any location worldwide</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="feature-card">
+              <i class="fas fa-clock mb-3"></i>
+              <h2>Real-time Updates</h2>
+              <p>Stay informed with automatic weather refreshes</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="feature-card">
+              <i class="fas fa-history mb-3"></i>
+              <h2>Recent Searches</h2>
+              <p>Quickly access your frequently checked locations</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Prepend welcome content to main content (add it before weather info)
+    mainContent.prepend(welcomeDiv);
+
+    // Initialize typing animation
+    const text =
+      "Heading out but can't take the chance? We've got your back—check the forecast now!";
+    let index = 0;
+    const typingElement = welcomeDiv.querySelector(".typing-text");
+
+    function typeText(timestamp) {
+      if (index < text.length) {
+        typingElement.textContent += text.charAt(index);
+        index++;
+        setTimeout(() => {
+          requestAnimationFrame(typeText);
+        }, 50);
+      }
+    }
+
+    requestAnimationFrame(typeText);
   }
 }
 

@@ -32,7 +32,7 @@ Mobile
 
 ![127 0 0 1_5500_ (11)](https://github.com/user-attachments/assets/c2199f5f-9b64-41cd-b768-87183130043d)
 
-## Installation
+## Installation & Configuration
 
 1. Clone the repository:
 
@@ -46,91 +46,94 @@ Mobile
    cd weather-app
    ```
 
-3. Open `index.html` in your browser or use a local server.
+3. Create configuration file:
 
-### Configuration
+   - Create a new file `js/config.js`
+   - Add your OpenWeather API configuration:
 
-1. Get your API key from [OpenWeather](https://openweathermap.org/api)
-2. Copy `js/config.sample.js` to `js/config.js`
-3. Replace `YOUR_API_KEY_HERE` in `config.js` with your actual API key
+   ```javascript
+   const config = {
+     WEATHER_API_KEY: "your_api_key_here",
+   };
+   ```
 
-## Features in Detail
+   - Get your API key from [OpenWeather](https://openweathermap.org/api)
 
-### Current Weather
+4. Open `index.html` in your browser or use a local server.
 
-- City name and country
-- Current temperature
-- Weather description with icon
-- "Feels like" temperature
-- Humidity percentage
-- Wind speed
-- Local time and date
+## Project Structure
 
-### 5-Day Forecast
+weather-app/
+├── index.html # Main HTML file
+├── styles.css # Global styles and theme variables
+├── images/
+│ ├── cloudy.png # Favicon
+│ └── weather-home.jpg# Welcome screen illustration
+├── js/
+│ ├── app.js # Main application logic
+│ └── config.js # API configuration
+└── README.md
 
-- Daily temperature forecasts
-- Weather conditions
-- Weather icons
-- Day of the week
+## Configuration Details
 
-### User Interface
+The `config.js` file is essential for the application to work. It should export an object with the following structure:
 
-- Clean, modern design
-- Responsive layout
-- Animated weather transitions
-- Loading indicators
-- Error handling
-- Offline status alerts
+```javascript
+const config = {
+  WEATHER_API_KEY: "your_api_key_here", // Your OpenWeather API key
+};
+```
 
-### Recent Searches
+Important notes about configuration:
 
-- Store up to 5 recent searches
-- Quick access to previous searches
-- Delete individual entries
-- Persistent storage
-
-## Code Structure
-
-- `index.html`: Main HTML file
-- `styles.css`: CSS styles for the app
-- `js/config.js`: Configuration file for the API key
-- `js/app.js`: JavaScript logic for the app
-- `images/cloudy.png`: Favicon for the app
+- Never commit your actual API key to version control
+- Keep your API key private and secure
+- The app won't function without a valid API key
+- Free tier API keys have rate limits (60 calls/minute)
 
 ## Development Features
 
-- ES6+ JavaScript
-- CSS Variables for theming
-- Responsive design with media queries
-- Error handling
-- Offline detection
-- Local storage management
-- Asynchronous API calls
-- Event delegation
-- DOM manipulation
+- ES6+ JavaScript with modern class-based architecture
+- CSS Variables for dynamic theming
+- Responsive design with mobile-first approach
+- Comprehensive error handling and user feedback
+- Offline detection and connectivity monitoring
+- Local storage for persistent user preferences
+- Asynchronous API calls with proper error handling
+- Event delegation for better performance
+- DOM manipulation with performance optimization
+- Welcome screen with typing animation
+- Smooth transitions and loading states
 
 ## API Integration
 
-The app uses the following OpenWeather API endpoints:
+The app integrates with OpenWeather API using three main endpoints:
 
-- Current weather data
-- 5-day forecast
-- Geocoding for city search
+1. Current Weather Data
+
+   - Endpoint: `/data/2.5/weather`
+   - Used for real-time weather information
+
+2. 5-Day Forecast
+
+   - Endpoint: `/data/2.5/forecast`
+   - Provides 3-hour step forecast data
+
+3. Geocoding API
+   - Endpoint: `/geo/1.0/direct`
+   - Handles city search and coordinates
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License.
 
 ## Acknowledgments
 
-- Weather data provided by [OpenWeather](https://openweathermap.org/)
-- Icons by [Font Awesome](https://fontawesome.com/)
-- Fonts by [Google Fonts](https://fonts.google.com/)
+- [OpenWeather](https://openweathermap.org/) for providing the weather data API
+- [Bootstrap](https://getbootstrap.com/) for the CSS framework
+- [Font Awesome](https://fontawesome.com/) for the icons
 
-## Author
+## Author and Support
 
-Edin Durak - [GitHub Profile](https://github.com/Edin-Durak)
-
-## Support
-
-For support, email edindurak8@gmail.com or open an issue on GitHub.
+- [Edin Durak](https://github.com/Edin-Durak)
+- [Email](mailto:edindurak8@gmail.com)
