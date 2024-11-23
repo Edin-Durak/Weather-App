@@ -1,7 +1,9 @@
-"use strict";
+("use strict");
+import { translations } from "./translations.js";
 
 class WeatherApp {
   constructor() {
+    this.currentLanguage = localStorage.getItem("language") || "bs";
     this.API_KEY = config.WEATHER_API_KEY;
     this.isMetric = true;
     this.autoRefreshInterval = 30 * 60 * 1000; // 30 minutes
@@ -18,6 +20,16 @@ class WeatherApp {
     this.displayRecentSearches();
     this.startAutoRefresh();
     this.initializeNetworkStatus();
+    this.displayFavorites();
+    this.initializeLanguage();
+
+    // Update date and time every minute
+    setInterval(() => {
+      this.updateDateTime();
+    }, 60000); // 60000 ms = 1 minute
+
+    // Initial date/time update
+    this.updateDateTime();
   }
 
   initializeElements() {
@@ -31,6 +43,9 @@ class WeatherApp {
     this.locationModal = document.getElementById("locationModal");
     this.locationList = document.getElementById("locationList");
     this.offlineAlert = document.getElementById("offlineAlert");
+    this.favoriteToggle = document.getElementById("favoriteToggle");
+    this.favoritesList = document.getElementById("favoritesList");
+    this.languageToggle = document.getElementById("languageToggle");
   }
 
   initializeEventListeners() {
@@ -55,6 +70,12 @@ class WeatherApp {
         this.displayForecast(this.lastForecastData);
       }
     });
+
+    this.favoriteToggle.addEventListener("click", () => {
+      this.toggleFavorite();
+    });
+
+    this.languageToggle.addEventListener("click", () => this.toggleLanguage());
   }
 
   initializeSidebar() {
@@ -187,18 +208,16 @@ class WeatherApp {
   displayWeather(data) {
     this.lastWeatherData = data;
 
-    // Clear welcome content if it exists
+    // First, remove welcome content if it exists
     const welcomeContent = document.querySelector(".welcome-content");
     if (welcomeContent) {
       welcomeContent.remove();
     }
 
-    // Show weather info
+    // Then show weather info
     const weatherInfo = document.getElementById("weatherInfo");
     if (weatherInfo) {
       weatherInfo.classList.remove("d-none");
-    } else {
-      console.error("Weather info container not found!");
     }
 
     // Add animation reset class
@@ -225,22 +244,44 @@ class WeatherApp {
 
     const cityTime = this.getLocalTime(Date.now(), data.timezone);
 
-    // Format date
-    currentDate.textContent = new Intl.DateTimeFormat("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    }).format(cityTime);
+    // Format date and time
+    const formatDateTime = (cityTime) => {
+      // Get English format first
+      const englishDate = new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        timeZone: "UTC",
+      }).format(cityTime);
 
-    // Format time
-    currentTime.textContent = new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: "UTC",
-    }).format(cityTime);
+      if (this.currentLanguage === "bs") {
+        // Split the English date into parts
+        const [weekday, monthDay, year] = englishDate.split(", ");
+        const [month, day] = monthDay.split(" ");
+
+        // Get translations from our translation object
+        const translatedWeekday = translations.bs[weekday.toLowerCase()];
+        const translatedMonth = translations.bs[month.toLowerCase()];
+
+        // Format in Bosnian style
+        currentDate.textContent = `${translatedWeekday}, ${day}. ${translatedMonth} ${year}.`;
+      } else {
+        currentDate.textContent = englishDate;
+      }
+
+      // Format time
+      currentTime.textContent = new Intl.DateTimeFormat(
+        this.currentLanguage === "bs" ? "bs-BA" : "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: this.currentLanguage === "bs" ? false : true,
+        }
+      ).format(cityTime);
+    };
+
+    formatDateTime(cityTime);
 
     const temp = this.isMetric ? data.main.temp : (data.main.temp * 9) / 5 + 32;
     const feelsLikeTemp = this.isMetric
@@ -260,6 +301,13 @@ class WeatherApp {
     `;
 
     this.addToRecentSearches(data);
+
+    const favorites = this.getFavorites();
+    const isFavorite = favorites.some((fav) => fav.name === data.name);
+
+    this.favoriteToggle.classList.toggle("active", isFavorite);
+    this.favoriteToggle.querySelector("i").classList.toggle("fas", isFavorite);
+    this.favoriteToggle.querySelector("i").classList.toggle("far", !isFavorite);
   }
 
   displayForecast(data) {
@@ -439,7 +487,8 @@ class WeatherApp {
   }
 
   showError(message) {
-    this.errorMessage.textContent = message;
+    const errorMessage = translations[this.currentLanguage][message] || message;
+    this.errorMessage.textContent = errorMessage;
     this.errorMessage.classList.remove("d-none");
   }
 
@@ -545,10 +594,12 @@ class WeatherApp {
     welcomeDiv.className = "welcome-content text-center py-5";
 
     welcomeDiv.innerHTML = `
-      <h1 class="typing-text mb-4"></h1>
+   <h1 class="typing-text" data-translate="welcomeTitle">
+    
+</h1>
       <div class="welcome-illustration mb-4 animate__animated animate__fadeIn animate__delay-1s">
         <img src="./images/weather-home.jpg" 
-             alt="Weather illustration" 
+             alt="${translations[this.currentLanguage].weatherIllustration}" 
              class="welcome-image"
              width="400"
              height="300"
@@ -557,54 +608,290 @@ class WeatherApp {
         >
       </div>
       <div class="welcome-features animate__animated animate__fadeInUp animate__delay-2s">
-        <div class="row g-4 justify-content-center mt-3">
-          <div class="col-md-4">
-            <div class="feature-card">
+        <div class="row g-4 justify-content-center align-items-stretch mt-3">
+          <div class="col-md-4 d-flex">
+            <div class="feature-card w-100">
               <i class="fas fa-search mb-3"></i>
-              <h2>Search Any City</h2>
-              <p>Get instant weather updates for any location worldwide</p>
+              <h2 data-translate="searchCityTitle"></h2>
+              <p data-translate="searchCityDesc"></p>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="feature-card">
+          <div class="col-md-4 d-flex">
+            <div class="feature-card w-100">
               <i class="fas fa-clock mb-3"></i>
-              <h2>Real-time Updates</h2>
-              <p>Stay informed with automatic weather refreshes</p>
+              <h2 data-translate="realTimeTitle"></h2>
+              <p data-translate="realTimeDesc"></p>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="feature-card">
+          <div class="col-md-4 d-flex">
+            <div class="feature-card w-100">
               <i class="fas fa-history mb-3"></i>
-              <h2>Recent Searches</h2>
-              <p>Quickly access your frequently checked locations</p>
+              <h2 data-translate="recentSearchesTitle"></h2>
+              <p data-translate="recentSearchesDesc"></p>
             </div>
           </div>
         </div>
       </div>
     `;
+    // Call translateUI after adding the content
+    this.translateUI();
 
     // Prepend welcome content to main content (add it before weather info)
     mainContent.prepend(welcomeDiv);
 
     // Initialize typing animation
-    const text =
-      "Heading out but can't take the chance? We've got your back—check the forecast now!";
-    let index = 0;
-    const typingElement = welcomeDiv.querySelector(".typing-text");
+    this.initializeTypingAnimation();
+  }
 
-    function typeText(timestamp) {
-      if (index < text.length) {
-        typingElement.textContent += text.charAt(index);
-        index++;
-        setTimeout(() => {
-          requestAnimationFrame(typeText);
-        }, 50);
-      }
+  toggleFavorite() {
+    if (!this.lastWeatherData) return;
+
+    const favorites = this.getFavorites();
+    const cityData = {
+      name: this.lastWeatherData.name,
+      lat: this.lastWeatherData.coord.lat,
+      lon: this.lastWeatherData.coord.lon,
+    };
+
+    const existingIndex = favorites.findIndex(
+      (fav) => fav.name === cityData.name
+    );
+
+    if (existingIndex === -1) {
+      favorites.push(cityData);
+      this.favoriteToggle.classList.add("active");
+      this.favoriteToggle.querySelector("i").classList.remove("far");
+      this.favoriteToggle.querySelector("i").classList.add("fas");
+    } else {
+      favorites.splice(existingIndex, 1);
+      this.favoriteToggle.classList.remove("active");
+      this.favoriteToggle.querySelector("i").classList.remove("fas");
+      this.favoriteToggle.querySelector("i").classList.add("far");
     }
 
-    requestAnimationFrame(typeText);
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    this.displayFavorites();
+  }
+
+  getFavorites() {
+    return JSON.parse(localStorage.getItem("favorites") || "[]");
+  }
+
+  async displayFavorites() {
+    const favorites = this.getFavorites();
+
+    // Clear current list
+    this.favoritesList.innerHTML = "";
+
+    // Fetch current weather for each favorite city
+    for (const city of favorites) {
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${config.WEATHER_API_KEY}&units=metric`
+        );
+        const weatherData = await response.json();
+
+        // Create list item with current weather data
+        const listItem = `
+                <li class="favorite-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="favorite-city" onclick="weatherApp.selectLocation(${
+                          city.lat
+                        }, ${city.lon}, '${city.name}')">
+                            ${city.name}
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-1">
+                            <img 
+                                src="https://openweathermap.org/img/wn/${
+                                  weatherData.weather[0].icon
+                                }.png" 
+                                alt="Weather icon"
+                                class="weather-icon-small"
+                                onerror="this.src='https://openweathermap.org/img/wn/01d.png'"
+                            >
+                            <span class="temperature" data-temp="${
+                              weatherData.main.temp
+                            }">
+                                ${this.formatTemperature(weatherData.main.temp)}
+                            </span>
+                        </div>
+                        <button 
+                            class="btn btn-link text-danger p-0" 
+                            onclick="event.stopPropagation(); weatherApp.removeFavorite('${
+                              city.name
+                            }')"
+                        >
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </li>
+            `;
+
+        this.favoritesList.innerHTML += listItem;
+      } catch (error) {
+        console.error(`Error fetching weather for ${city.name}:`, error);
+      }
+    }
+  }
+
+  removeFavorite(cityName) {
+    const favorites = this.getFavorites().filter(
+      (city) => city.name !== cityName
+    );
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    this.displayFavorites();
+
+    if (this.lastWeatherData && this.lastWeatherData.name === cityName) {
+      this.favoriteToggle.classList.remove("active");
+      this.favoriteToggle.querySelector("i").classList.remove("fas");
+      this.favoriteToggle.querySelector("i").classList.add("far");
+    }
+  }
+
+  initializeLanguage() {
+    this.updateLanguageButton();
+    this.translateUI();
+  }
+
+  toggleLanguage() {
+    // Change language
+    this.currentLanguage = this.currentLanguage === "en" ? "bs" : "en";
+    localStorage.setItem("language", this.currentLanguage);
+
+    // Update UI
+    this.updateLanguageButton();
+    this.translateUI();
+
+    // Update date and time with new language
+    this.updateDateTime();
+
+    // Refresh weather display if we have data
+    if (this.lastWeatherData) {
+      this.displayWeather(this.lastWeatherData);
+    }
+  }
+
+  updateLanguageButton() {
+    const langDisplay = this.currentLanguage.toUpperCase();
+    this.languageToggle.querySelector(".current-lang").textContent =
+      langDisplay;
+  }
+
+  translateUI() {
+    document.querySelectorAll("[data-translate]").forEach((element) => {
+      const key = element.getAttribute("data-translate");
+      if (translations[this.currentLanguage][key]) {
+        // For the welcome title, just change the text without animation
+        if (element.classList.contains("typing-text")) {
+          element.textContent = translations[this.currentLanguage].welcomeTitle;
+          return;
+        }
+
+        if (element.tagName === "INPUT") {
+          element.placeholder = translations[this.currentLanguage][key];
+        } else {
+          element.textContent = translations[this.currentLanguage][key];
+        }
+      }
+    });
+  }
+
+  showLoading() {
+    this.weatherContainer.innerHTML = `
+        <div class="loading">
+            <span>${translations[this.currentLanguage].loading}</span>
+        </div>
+    `;
+  }
+
+  initializeTypingAnimation() {
+    const typingText = document.querySelector(".typing-text");
+    if (!typingText) return;
+
+    // Clear any existing content and ongoing animations
+    typingText.textContent = "";
+
+    // Get the correct text based on current language
+    const textToType = translations[this.currentLanguage].welcomeTitle;
+
+    let charIndex = 0;
+    const typingDelay = 55;
+
+    const typeChar = () => {
+      if (charIndex < textToType.length) {
+        typingText.textContent = textToType.slice(0, charIndex + 1);
+        charIndex++;
+        setTimeout(typeChar, typingDelay);
+      }
+    };
+
+    // Start typing animation
+    typeChar();
+  }
+
+  formatDate(date) {
+    // Define the arrays of day and month keys
+    const days = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ];
+    const months = [
+      "january",
+      "february",
+      "march",
+      "april",
+      "may",
+      "june",
+      "july",
+      "august",
+      "september",
+      "october",
+      "november",
+      "december",
+    ];
+
+    const dayKey = days[date.getDay()];
+    const monthKey = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    // Get translated day and month names
+    const translatedDay = translations[this.currentLanguage][dayKey];
+    const translatedMonth = translations[this.currentLanguage][monthKey];
+
+    // Format based on language
+    if (this.currentLanguage === "bs") {
+      return `${translatedDay}, ${day}. ${translatedMonth} ${year}.`; // Bosnian format
+    } else {
+      return `${translatedDay}, ${translatedMonth} ${day}, ${year}`; // English format
+    }
+  }
+
+  updateDateTime() {
+    const now = new Date();
+    const dateElement = document.querySelector(".current-date");
+    const timeElement = document.querySelector(".current-time");
+
+    if (dateElement) {
+      const formattedDate = this.formatDate(now);
+      dateElement.textContent = formattedDate;
+    }
+
+    if (timeElement) {
+      timeElement.textContent = now.toLocaleTimeString(
+        this.currentLanguage === "bs" ? "bs-BA" : "en-US",
+        { hour: "2-digit", minute: "2-digit" }
+      );
+    }
   }
 }
-
 // Initialize the app
 const weatherApp = new WeatherApp();
+window.weatherApp = weatherApp;
