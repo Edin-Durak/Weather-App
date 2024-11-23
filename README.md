@@ -27,7 +27,7 @@ A sleek and responsive weather application that provides real-time weather infor
 
 Desktop
 
-![127 0 0 1_5500_ (12)](https://github.com/user-attachments/assets/d08fb010-3a77-40a6-a997-c2168741d74f)
+![127 0 0 1_5500_ (12)](https://github.com/user-attachments/assets/cb096191-c9ad-4ac3-b63d-28fcefc784ed)
 
 Mobile
 
