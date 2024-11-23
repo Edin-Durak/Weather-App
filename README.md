@@ -26,11 +26,12 @@ A sleek and responsive weather application that provides real-time weather infor
 ## Screenshots
 
 Desktop
-![127 0 0 1_5500_ (10)](https://github.com/user-attachments/assets/cf3b1916-3d1d-465b-9211-8082d0c779fe)
+
+![127 0 0 1_5500_ (12)](https://github.com/user-attachments/assets/d08fb010-3a77-40a6-a997-c2168741d74f)
 
 Mobile
 
-![127 0 0 1_5500_ (11)](https://github.com/user-attachments/assets/c2199f5f-9b64-41cd-b768-87183130043d)
+![127 0 0 1_5500_ (13)](https://github.com/user-attachments/assets/245e5156-2e89-4b42-9274-55af9f86dc03)
 
 ## Installation & Configuration
 
@@ -66,15 +67,42 @@ Mobile
 ```
 weather-app/
 ├── index.html # Main HTML file
-├── styles.css # Global styles and theme variables
+├── styles.css # Global styles and animations
 ├── images/
 │ ├── cloudy.png # Favicon
-│ └── weather-home.jpg# Welcome screen illustration
+│ └── weather-home.jpg# Welcome illustration
 ├── js/
 │ ├── app.js # Main application logic
-│ └── config.js # API configuration
+│ ├── config.js # API configuration
+│ └── translations.js # Language translations
 └── README.md
 ```
+
+## Language Support
+
+The app supports two languages:
+
+- English (EN)
+- Bosnian (BS)
+
+Features of the translation system:
+
+- Dynamic language switching
+- Persistent language preference
+- Translated weather descriptions
+- Localized date and time formats
+- Animated welcome messages
+
+## Development Features
+
+Previous features plus:
+
+- Multi-language support with dynamic switching
+- Typing animation for welcome messages
+- Enhanced animations using Animate.css
+- Improved accessibility with ARIA labels
+- Smooth transitions between languages
+- Localized date and time formatting
 
 ## Configuration Details
 
