@@ -90,6 +90,8 @@ export const translations = {
       "heavy rain": "Heavy rain",
       drizzle: "Drizzle",
     },
+    noFavorites: "No favorite cities added yet",
+    errorLoading: "Error loading weather",
   },
   bs: {
     // Navigation & Headers
@@ -164,6 +166,8 @@ export const translations = {
     modalTitle: "Pronađeno više lokacija",
     modalDescription: "Molimo odaberite specifičnu lokaciju:",
     modalClose: "Zatvori",
+    noFavorites: "Još uvijek nema omiljenih gradova",
+    errorLoading: "Greška pri učitavanju vremena",
   },
 
   // Weather descriptions

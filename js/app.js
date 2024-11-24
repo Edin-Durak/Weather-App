@@ -63,12 +63,23 @@ class WeatherApp {
         this.unitToggle.classList.remove("switching");
       }, 300);
 
+      // Update main weather display
       if (this.lastWeatherData) {
         this.displayWeather(this.lastWeatherData);
       }
       if (this.lastForecastData) {
         this.displayForecast(this.lastForecastData);
       }
+
+      // Update all temperature displays (recent searches and favorites)
+      document
+        .querySelectorAll(".temperature[data-temp]")
+        .forEach((tempElement) => {
+          const rawTemp = parseFloat(tempElement.dataset.temp);
+          if (!isNaN(rawTemp)) {
+            tempElement.textContent = this.formatTemperature(rawTemp);
+          }
+        });
     });
 
     this.favoriteToggle.addEventListener("click", () => {
@@ -573,16 +584,23 @@ class WeatherApp {
 
   toggleUnit() {
     this.isMetric = !this.isMetric;
-    // Update main weather display
-    this.updateTemperatureDisplay();
+    localStorage.setItem("isMetric", JSON.stringify(this.isMetric));
 
-    // Update recent searches temperature display
-    const temperatures = document.querySelectorAll(
-      ".recent-searches .temperature"
-    );
+    // Update main weather display if exists
+    if (this.lastWeatherData) {
+      this.displayWeather(this.lastWeatherData);
+    }
+    if (this.lastForecastData) {
+      this.displayForecast(this.lastForecastData);
+    }
+
+    // Update temperatures in both recent searches and favorites
+    const temperatures = document.querySelectorAll(".temperature[data-temp]");
     temperatures.forEach((tempElement) => {
       const rawTemp = parseFloat(tempElement.dataset.temp);
-      tempElement.textContent = this.formatTemperature(rawTemp);
+      if (!isNaN(rawTemp)) {
+        tempElement.textContent = this.formatTemperature(rawTemp);
+      }
     });
   }
 
@@ -643,34 +661,47 @@ class WeatherApp {
     this.initializeTypingAnimation();
   }
 
-  toggleFavorite() {
+  async toggleFavorite() {
     if (!this.lastWeatherData) return;
 
+    const { name, coord } = this.lastWeatherData;
     const favorites = this.getFavorites();
-    const cityData = {
-      name: this.lastWeatherData.name,
-      lat: this.lastWeatherData.coord.lat,
-      lon: this.lastWeatherData.coord.lon,
-    };
+    const favoritesList = document.getElementById("favoritesList");
 
-    const existingIndex = favorites.findIndex(
-      (fav) => fav.name === cityData.name
-    );
+    // Check if city is already in favorites
+    const isFavorite = favorites.some((city) => city.name === name);
 
-    if (existingIndex === -1) {
-      favorites.push(cityData);
-      this.favoriteToggle.classList.add("active");
-      this.favoriteToggle.querySelector("i").classList.remove("far");
-      this.favoriteToggle.querySelector("i").classList.add("fas");
+    if (isFavorite) {
+      // Remove from favorites
+      this.removeFavorite(name);
     } else {
-      favorites.splice(existingIndex, 1);
-      this.favoriteToggle.classList.remove("active");
-      this.favoriteToggle.querySelector("i").classList.remove("fas");
-      this.favoriteToggle.querySelector("i").classList.add("far");
-    }
+      // First, remove the "no favorites" message if it exists
+      const noFavoritesMessage = favoritesList.querySelector("li.text-left");
+      if (noFavoritesMessage) {
+        noFavoritesMessage.remove();
+      }
 
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-    this.displayFavorites();
+      // Add to favorites
+      const newFavorite = {
+        name,
+        lat: coord.lat,
+        lon: coord.lon,
+      };
+
+      favorites.push(newFavorite);
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+
+      // Update UI
+      this.favoriteToggle.classList.add("active");
+      this.favoriteToggle.querySelector("i").classList.add("fas");
+      this.favoriteToggle.querySelector("i").classList.remove("far");
+
+      // Add new item to the list
+      const listItem = await this.createFavoriteListItem(newFavorite);
+      if (listItem) {
+        favoritesList.appendChild(listItem);
+      }
+    }
   }
 
   getFavorites() {
@@ -682,6 +713,19 @@ class WeatherApp {
 
     // Clear current list
     this.favoritesList.innerHTML = "";
+
+    // Check if favorites exist
+    if (favorites.length === 0) {
+      this.favoritesList.innerHTML = `
+            <li class="text-left py-1" data-translate="noFavorites">
+                ${
+                  translations[this.currentLanguage].noFavorites ||
+                  "No favorite cities added yet"
+                }
+            </li>
+        `;
+      return;
+    }
 
     // Fetch current weather for each favorite city
     for (const city of favorites) {
@@ -732,17 +776,69 @@ class WeatherApp {
         this.favoritesList.innerHTML += listItem;
       } catch (error) {
         console.error(`Error fetching weather for ${city.name}:`, error);
+        // Add error state for failed items
+        this.favoritesList.innerHTML += `
+                <li class="favorite-item d-flex justify-content-between align-items-center text-muted">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="favorite-city" onclick="weatherApp.selectLocation(${
+                          city.lat
+                        }, ${city.lon}, '${city.name}')">
+                            ${city.name}
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="small">${
+                          translations[this.currentLanguage].errorLoading ||
+                          "Error loading weather"
+                        }</span>
+                        <button 
+                            class="btn btn-link text-danger p-0" 
+                            onclick="event.stopPropagation(); weatherApp.removeFavorite('${
+                              city.name
+                            }')"
+                        >
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </li>
+            `;
       }
     }
   }
 
   removeFavorite(cityName) {
+    // Update localStorage
     const favorites = this.getFavorites().filter(
       (city) => city.name !== cityName
     );
     localStorage.setItem("favorites", JSON.stringify(favorites));
-    this.displayFavorites();
 
+    // Find and remove the specific favorite item
+    const favoritesList = document.getElementById("favoritesList");
+    const favoriteItems = favoritesList.querySelectorAll(".favorite-item");
+
+    for (const item of favoriteItems) {
+      if (
+        item.querySelector(".favorite-city").textContent.trim() === cityName
+      ) {
+        item.remove();
+        break;
+      }
+    }
+
+    // Show "No favorites" message if list is empty
+    if (favoritesList && favoritesList.children.length === 0) {
+      favoritesList.innerHTML = `
+            <li class="text-left py-1" data-translate="noFavorites">
+                ${
+                  translations[this.currentLanguage].noFavorites ||
+                  "No favorite cities added yet"
+                }
+            </li>
+        `;
+    }
+
+    // Update favorite button if we're viewing that city
     if (this.lastWeatherData && this.lastWeatherData.name === cityName) {
       this.favoriteToggle.classList.remove("active");
       this.favoriteToggle.querySelector("i").classList.remove("fas");
@@ -889,6 +985,94 @@ class WeatherApp {
         this.currentLanguage === "bs" ? "bs-BA" : "en-US",
         { hour: "2-digit", minute: "2-digit" }
       );
+    }
+  }
+
+  async createFavoriteListItem(city) {
+    try {
+      const weatherData = await this.getWeatherByCoords(city.lat, city.lon);
+      const listItem = document.createElement("li");
+      listItem.className =
+        "favorite-item d-flex justify-content-between align-items-center";
+      listItem.setAttribute("data-city", city.name);
+
+      listItem.innerHTML = `
+          <div class="d-flex align-items-center gap-2">
+              <span class="favorite-city" onclick="weatherApp.selectLocation(${
+                city.lat
+              }, ${city.lon}, '${city.name}')">
+                  ${city.name}
+              </span>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+              <div class="d-flex align-items-center gap-1">
+                  <img 
+                      src="https://openweathermap.org/img/wn/${
+                        weatherData.weather[0].icon
+                      }.png" 
+                      alt="Weather icon"
+                      class="weather-icon-small"
+                  >
+                  <span class="temperature" data-temp="${
+                    weatherData.main.temp
+                  }">
+                      ${this.formatTemperature(weatherData.main.temp)}
+                  </span>
+              </div>
+              <button 
+                  class="btn btn-link text-danger p-0" 
+                  onclick="event.stopPropagation(); weatherApp.removeFavorite('${
+                    city.name
+                  }')"
+              >
+                  <i class="fas fa-times"></i>
+              </button>
+          </div>
+      `;
+
+      return listItem;
+    } catch (error) {
+      console.error(`Error creating favorite item for ${city.name}:`, error);
+      // Return a simpler list item when weather data can't be fetched
+      const listItem = document.createElement("li");
+      listItem.className =
+        "favorite-item d-flex justify-content-between align-items-center";
+      listItem.setAttribute("data-city", city.name);
+
+      listItem.innerHTML = `
+          <div class="d-flex align-items-center gap-2">
+              <span class="favorite-city" onclick="weatherApp.selectLocation(${city.lat}, ${city.lon}, '${city.name}')">
+                  ${city.name}
+              </span>
+          </div>
+          <div class="d-flex align-items-center gap-3">
+              <button 
+                  class="btn btn-link text-danger p-0" 
+                  onclick="event.stopPropagation(); weatherApp.removeFavorite('${city.name}')"
+              >
+                  <i class="fas fa-times"></i>
+              </button>
+          </div>
+      `;
+
+      return listItem;
+    }
+  }
+
+  async getWeatherByCoords(lat, lon) {
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${config.WEATHER_API_KEY}&units=metric`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching weather by coordinates:", error);
+      throw error;
     }
   }
 }
