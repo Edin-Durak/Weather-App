@@ -4,15 +4,20 @@ A sleek and responsive weather application that provides real-time weather infor
 
 ## Features
 
-- 🌡️ Real-time weather data
-- 🌍 Global city search
-- 📱 Responsive design
-- 🔄 Auto-refresh weather data
+- 🌡️ Real-time weather data with hourly forecasts
+- 🌍 Global city search with multiple location handling
+- 📱 Responsive design for all devices
+- 🔄 Auto-refresh weather data every 30 minutes
 - 📍 Recent searches history
+- ⭐ Favorites system for quick access
 - 🌓 Temperature unit toggle (°C/°F)
 - 📊 5-day weather forecast
-- ⚡ Offline detection
-- 🎯 Multiple location handling
+- 🌤️ Dynamic weather messages based on conditions
+- 🌙 Day/Night detection for contextual messages
+- 🔤 Multi-language support (English/Bosnian)
+- ⚡ Offline detection and handling
+- ⌚ Local time display with timezone support
+- 💫 Smooth animations and transitions
 
 ## Technologies Used
 
@@ -89,8 +94,12 @@ Features of the translation system:
 
 - Dynamic language switching
 - Persistent language preference
-- Translated weather descriptions
+- Translated weather descriptions and messages
 - Localized date and time formats
+- Dynamic weather messages based on:
+  - Current weather conditions
+  - Time of day (day/night)
+  - Weather severity
 - Animated welcome messages
 
 ## Development Features
