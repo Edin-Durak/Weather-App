@@ -45,7 +45,9 @@
   <body class="dark-theme">
     <div class="top-controls">
       <button class="language-toggle" id="languageToggle">
-        <span class="current-lang">BS</span>
+        <span class="lang-option" data-lang="bs">BS</span>
+        <span class="separator">/</span>
+        <span class="lang-option" data-lang="en">EN</span>
       </button>
       <button
         id="sidebarToggle"
@@ -129,8 +131,15 @@
             <div class="weather-body">
               <div class="temperature-container">
                 <div class="current-temp"></div>
-                <div class="weather-description"></div>
+                <div
+                  class="weather-description"
+                  data-translate="weatherDesc"
+                ></div>
               </div>
+              <div
+                class="weather-message"
+                data-translate="weatherMessage"
+              ></div>
               <div class="weather-icon-large">
                 <!-- Weather icon will be inserted here -->
               </div>
@@ -163,6 +172,13 @@
                   >
                   <span class="wind-speed"></span>
                 </div>
+              </div>
+            </div>
+
+            <div class="hourly-forecast-section">
+              <h2 data-translate="hourlyForecast">24-Hour Forecast</h2>
+              <div class="hourly-forecast-container">
+                <!-- Hourly forecast cards will be inserted here -->
               </div>
             </div>
           </div>

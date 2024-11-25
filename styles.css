@@ -48,7 +48,7 @@ body {
 }
 
 .main-content {
-  margin-top: 2rem;
+  margin-top: 3rem;
   padding: 2rem;
 }
 
@@ -146,7 +146,7 @@ body {
   );
   border-radius: 20px;
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   box-shadow: var(--card-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -156,7 +156,6 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  margin-bottom: 2rem;
 }
 
 .city-name {
@@ -190,7 +189,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
 }
 
 .current-temp {
@@ -204,6 +202,29 @@ body {
   text-transform: capitalize;
 }
 
+.weather-message {
+  text-align: center;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.5s ease-in-out;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Weather Details */
 .weather-details {
   display: grid;
@@ -213,7 +234,7 @@ body {
 
 .detail-card {
   background: rgba(255, 255, 255, 0.1);
-  padding: 1rem;
+  padding: 1.25rem;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -237,9 +258,62 @@ body {
 /* ==========================================================================
      6. Forecast Section
      ========================================================================== */
-.forecast-section {
-  margin-top: 2rem;
+
+.hourly-forecast-section {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
 }
+
+.hourly-forecast-section h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.hourly-forecast-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.hourly-forecast-card {
+  flex: 0 0 auto;
+  min-width: 80px;
+  padding: 0.5rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  width: 11%;
+}
+
+.hourly-forecast-card .hour {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.hourly-forecast-card .weather-icon-small {
+  width: 40px;
+  height: 40px;
+  margin: 0.25rem 0;
+}
+
+.hourly-forecast-card .temp {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.hourly-forecast-card .humidity {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+     7. Forecast Section
+     ========================================================================== */
 
 .forecast-container {
   display: grid;
@@ -262,7 +336,7 @@ body {
 }
 
 /* ==========================================================================
-     7. UI Components
+     8. UI Components
      ========================================================================== */
 /* Temperature Toggle */
 .unit-toggle {
@@ -441,17 +515,36 @@ body {
 /* Language Toggle */
 
 .language-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
   background: var(--accent-color);
   border: none;
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
   border-radius: 8px;
+  color: var(--text-primary);
   cursor: pointer;
-  box-shadow: var(--card-shadow);
-  transition: var(--transition);
+  transition: all 0.3s ease;
 }
 
 .language-toggle:hover {
+  opacity: 0.9;
+}
+
+.lang-option {
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+}
+
+.lang-option.active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 500;
+}
+
+.separator {
   opacity: 0.8;
 }
 
@@ -490,7 +583,7 @@ body {
 }
 
 /* ==========================================================================
-     8. Animations
+     9. Animations
      ========================================================================== */
 @keyframes spin {
   to {
@@ -618,7 +711,7 @@ body {
 }
 
 /* ==========================================================================
-     9. Media Queries
+     10. Media Queries
      ========================================================================== */
 @media (max-width: 1024px) {
   .app-container {
@@ -645,7 +738,6 @@ body {
 
   .main-content {
     width: 100%;
-    margin-top: 3rem;
   }
 
   .sidebar-toggle {
@@ -696,7 +788,7 @@ body {
 }
 
 .welcome-content {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 2rem;
 }

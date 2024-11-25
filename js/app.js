@@ -69,17 +69,16 @@ class WeatherApp {
       }
       if (this.lastForecastData) {
         this.displayForecast(this.lastForecastData);
+        this.displayHourlyForecast(this.lastForecastData);
       }
 
-      // Update all temperature displays (recent searches and favorites)
-      document
-        .querySelectorAll(".temperature[data-temp]")
-        .forEach((tempElement) => {
-          const rawTemp = parseFloat(tempElement.dataset.temp);
-          if (!isNaN(rawTemp)) {
-            tempElement.textContent = this.formatTemperature(rawTemp);
-          }
-        });
+      // Update all temperature displays
+      document.querySelectorAll("[data-temp]").forEach((tempElement) => {
+        const rawTemp = parseFloat(tempElement.dataset.temp);
+        if (!isNaN(rawTemp)) {
+          tempElement.textContent = this.formatTemperature(rawTemp);
+        }
+      });
     });
 
     this.favoriteToggle.addEventListener("click", () => {
@@ -159,7 +158,7 @@ class WeatherApp {
       const coordsData = await coordsResponse.json();
 
       if (!coordsData.length) {
-        throw new Error("Location not found. Please try a city name.");
+        throw new Error("noResults");
       }
 
       if (coordsData.length > 1) {
@@ -186,9 +185,7 @@ class WeatherApp {
       this.displayForecast(forecastData);
       this.hideError();
     } catch (error) {
-      this.showError(
-        error.message || "Unable to fetch weather data. Please try again."
-      );
+      this.showError(error.message || "tryAgain");
       console.error("Error:", error);
     } finally {
       this.hideLoader();
@@ -242,13 +239,22 @@ class WeatherApp {
 
     const cityName = document.querySelector(".city-name");
     const currentTemp = document.querySelector(".current-temp");
-    const weatherDesc = document.querySelector(".weather-description");
+    const weatherDesc = data.weather[0].description;
+    const translatedDesc =
+      translations[this.currentLanguage].weatherDesc[weatherDesc] ||
+      weatherDesc;
     const currentDate = document.querySelector(".current-date");
     const currentTime = document.querySelector(".current-time");
     const feelsLike = document.querySelector(".feels-like");
     const humidity = document.querySelector(".humidity");
     const windSpeed = document.querySelector(".wind-speed");
     const weatherIcon = document.querySelector(".weather-icon-large");
+    const weatherDescription = document.querySelector(".weather-description");
+    weatherDescription.setAttribute(
+      "data-translate",
+      `weatherDesc.${weatherDesc}`
+    );
+    weatherDescription.textContent = translatedDesc;
 
     // Update the weather data
     cityName.textContent = `${data.name}, ${data.sys.country}`;
@@ -301,7 +307,6 @@ class WeatherApp {
     const unit = this.isMetric ? "°C" : "°F";
 
     currentTemp.textContent = `${Math.round(temp)}${unit}`;
-    weatherDesc.textContent = data.weather[0].description;
     feelsLike.textContent = `${Math.round(feelsLikeTemp)}${unit}`;
     humidity.textContent = `${data.main.humidity}%`;
     windSpeed.textContent = `${Math.round(data.wind.speed * 3.6)} km/h`;
@@ -319,6 +324,22 @@ class WeatherApp {
     this.favoriteToggle.classList.toggle("active", isFavorite);
     this.favoriteToggle.querySelector("i").classList.toggle("fas", isFavorite);
     this.favoriteToggle.querySelector("i").classList.toggle("far", !isFavorite);
+
+    const weatherMessage = this.getWeatherMessage(data);
+    const messageElement = document.querySelector(".weather-message");
+    messageElement.textContent = weatherMessage;
+
+    // Update date and time with the timezone from the API
+    this.updateDateTime(data.timezone);
+
+    // Start updating time regularly
+    if (this.timeUpdateInterval) {
+      clearInterval(this.timeUpdateInterval);
+    }
+
+    this.timeUpdateInterval = setInterval(() => {
+      this.updateDateTime(data.timezone);
+    }, 1000);
   }
 
   displayForecast(data) {
@@ -332,20 +353,35 @@ class WeatherApp {
 
     dailyForecasts.forEach((forecast) => {
       const date = new Date(forecast.dt * 1000);
-      const day = date.toLocaleDateString("en-US", { weekday: "short" });
+      const dayIndex = date.getDay();
+      const days = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+      ];
+      const dayKey = `${days[dayIndex]}Short`;
+      const translatedDay = translations[this.currentLanguage][dayKey];
+      const weatherDesc = forecast.weather[0].description;
+      const translatedDesc =
+        translations[this.currentLanguage].weatherDesc[weatherDesc] ||
+        weatherDesc;
 
       forecastContainer.innerHTML += `
         <div class="forecast-card">
-          <h3>${day}</h3>
+          <h3 data-translate="${dayKey}">${translatedDay}</h3>
           <img src="https://openweathermap.org/img/wn/${
             forecast.weather[0].icon
           }@2x.png" 
-               alt="${forecast.weather[0].description}"
+               alt="${translatedDesc}"
                class="weather-icon">
           <p class="forecast-temp">${this.formatTemperature(
             forecast.main.temp
           )}</p>
-          <p class="forecast-desc">${forecast.weather[0].description}</p>
+          <p class="forecast-desc" data-translate="${weatherDesc}">${translatedDesc}</p>
         </div>
       `;
     });
@@ -464,12 +500,14 @@ class WeatherApp {
       const weatherData = await weatherResponse.json();
       const forecastData = await forecastResponse.json();
 
+      // Display all weather information
       this.displayWeather(weatherData);
+      this.displayHourlyForecast(forecastData);
       this.displayForecast(forecastData);
       this.hideError();
     } catch (error) {
-      this.showError("Unable to fetch weather data. Please try again.");
-      console.error("Error in searchCity:", error); // Debug log
+      this.showError("tryAgain");
+      console.error("Error in searchCity:", error);
     }
   }
 
@@ -501,6 +539,8 @@ class WeatherApp {
     const errorMessage = translations[this.currentLanguage][message] || message;
     this.errorMessage.textContent = errorMessage;
     this.errorMessage.classList.remove("d-none");
+    // Store the specific error key for language switching
+    this.errorMessage.setAttribute("data-error-key", message);
   }
 
   hideError() {
@@ -557,10 +597,11 @@ class WeatherApp {
       const forecastData = await forecastResponse.json();
 
       this.displayWeather(weatherData);
+      this.displayHourlyForecast(forecastData);
       this.displayForecast(forecastData);
       this.hideError();
     } catch (error) {
-      this.showError("Unable to fetch weather data. Please try again.");
+      this.showError("tryAgain");
     }
   }
 
@@ -627,21 +668,30 @@ class WeatherApp {
       </div>
       <div class="welcome-features animate__animated animate__fadeInUp animate__delay-2s">
         <div class="row g-4 justify-content-center align-items-stretch mt-3">
-          <div class="col-md-4 d-flex">
+          <div class="col-md-3 d-flex">
             <div class="feature-card w-100">
               <i class="fas fa-search mb-3"></i>
               <h2 data-translate="searchCityTitle"></h2>
               <p data-translate="searchCityDesc"></p>
             </div>
           </div>
-          <div class="col-md-4 d-flex">
+          <div class="col-md-3 d-flex">
             <div class="feature-card w-100">
               <i class="fas fa-clock mb-3"></i>
               <h2 data-translate="realTimeTitle"></h2>
               <p data-translate="realTimeDesc"></p>
             </div>
           </div>
-          <div class="col-md-4 d-flex">
+
+            <div class="col-md-3 d-flex">
+            <div class="feature-card w-100">
+              <i class="fas fa-star mb-3"></i>
+              <h2 data-translate="favoritesTitle"></h2>
+              <p data-translate="favoritesDesc"></p>
+            </div>
+          </div>
+          
+          <div class="col-md-3 d-flex">
             <div class="feature-card w-100">
               <i class="fas fa-history mb-3"></i>
               <h2 data-translate="recentSearchesTitle"></h2>
@@ -863,16 +913,34 @@ class WeatherApp {
     // Update date and time with new language
     this.updateDateTime();
 
-    // Refresh weather display if we have data
+    // Refresh weather and forecast displays if we have data
     if (this.lastWeatherData) {
       this.displayWeather(this.lastWeatherData);
+    }
+    if (this.lastForecastData) {
+      this.displayForecast(this.lastForecastData);
+    }
+
+    // Refresh error message if it's visible
+    const errorMessage = document.getElementById("errorMessage");
+    if (!errorMessage.classList.contains("d-none")) {
+      // Get the specific error key that was stored
+      const currentError = errorMessage.getAttribute("data-error-key");
+      if (currentError) {
+        this.showError(currentError);
+      }
     }
   }
 
   updateLanguageButton() {
-    const langDisplay = this.currentLanguage.toUpperCase();
-    this.languageToggle.querySelector(".current-lang").textContent =
-      langDisplay;
+    const langOptions = document.querySelectorAll(".lang-option");
+    langOptions.forEach((option) => {
+      if (option.dataset.lang === this.currentLanguage) {
+        option.classList.add("active");
+      } else {
+        option.classList.remove("active");
+      }
+    });
   }
 
   translateUI() {
@@ -970,20 +1038,34 @@ class WeatherApp {
     }
   }
 
-  updateDateTime() {
-    const now = new Date();
+  updateDateTime(timezone = 0) {
     const dateElement = document.querySelector(".current-date");
     const timeElement = document.querySelector(".current-time");
 
+    if (!dateElement || !timeElement) return;
+
+    // Get current UTC time
+    const now = new Date();
+    const utcMilliseconds = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+
+    // Convert to city's local time and add 1 hour (3600000 milliseconds)
+    const cityTime = new Date(utcMilliseconds + timezone * 1000 + 3600000); // Added 3600000 ms (1 hour)
     if (dateElement) {
-      const formattedDate = this.formatDate(now);
+      const formattedDate = this.formatDate(cityTime);
       dateElement.textContent = formattedDate;
     }
 
     if (timeElement) {
-      timeElement.textContent = now.toLocaleTimeString(
+      const options = {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: this.currentLanguage !== "bs",
+        timeZone: "UTC",
+      };
+
+      timeElement.textContent = cityTime.toLocaleTimeString(
         this.currentLanguage === "bs" ? "bs-BA" : "en-US",
-        { hour: "2-digit", minute: "2-digit" }
+        options
       );
     }
   }
@@ -1074,6 +1156,104 @@ class WeatherApp {
       console.error("Error fetching weather by coordinates:", error);
       throw error;
     }
+  }
+
+  getWeatherMessage(weatherData) {
+    const weatherCode = weatherData.weather[0].id;
+    const description = weatherData.weather[0].description;
+    const isDay = this.isDay(
+      weatherData.dt,
+      weatherData.sys.sunrise,
+      weatherData.sys.sunset
+    );
+
+    // Get messages object based on current language
+    const messages = translations[this.currentLanguage].weatherMessages;
+
+    // Determine weather category and return appropriate message
+    if (weatherCode === 800) {
+      // Clear sky
+      return isDay ? messages.clear.day : messages.clear.night;
+    }
+
+    if (weatherCode >= 801 && weatherCode <= 803) {
+      // Few/scattered clouds
+      return isDay ? messages.partlyCloudy.day : messages.partlyCloudy.night;
+    }
+
+    if (weatherCode >= 500 && weatherCode <= 531) {
+      // Rain
+      return weatherCode < 502 ? messages.rain.light : messages.rain.heavy;
+    }
+
+    if (weatherCode >= 600 && weatherCode <= 622) {
+      // Snow
+      return messages.snow;
+    }
+
+    if (
+      (weatherCode >= 200 && weatherCode <= 232) || // Thunderstorm
+      weatherCode >= 900
+    ) {
+      // Extreme weather
+      return messages.extreme;
+    }
+
+    return messages.default;
+  }
+
+  isDay(currentTime, sunrise, sunset) {
+    const current = new Date(currentTime * 1000);
+    const sunriseTime = new Date(sunrise * 1000);
+    const sunsetTime = new Date(sunset * 1000);
+
+    return current >= sunriseTime && current < sunsetTime;
+  }
+
+  displayHourlyForecast(data) {
+    if (!data || !data.list) return;
+
+    const hourlyContainer = document.querySelector(
+      ".hourly-forecast-container"
+    );
+    if (!hourlyContainer) return;
+
+    hourlyContainer.innerHTML = "";
+    const hourlyForecasts = data.list.slice(0, 8);
+
+    hourlyForecasts.forEach((forecast) => {
+      const time = new Date(forecast.dt * 1000);
+      const hour = time.getHours();
+
+      // Fix AM/PM display
+      const ampm =
+        this.currentLanguage === "bs" ? "" : hour >= 12 ? "PM" : "AM";
+      const hour12 =
+        this.currentLanguage === "bs"
+          ? hour.toString().padStart(2, "0")
+          : hour % 12 || 12;
+
+      const hourlyCard = `
+            <div class="hourly-forecast-card col-md-2">
+                <div class="hour">${hour12} ${ampm}</div>
+                <img 
+                    src="https://openweathermap.org/img/wn/${
+                      forecast.weather[0].icon
+                    }.png" 
+                    alt="${forecast.weather[0].description}"
+                    class="weather-icon-small"
+                >
+                <div class="temp" data-temp="${forecast.main.temp}">
+                    ${this.formatTemperature(forecast.main.temp)}
+                </div>
+                <div class="humidity">
+                    <i class="fas fa-droplet"></i> ${forecast.main.humidity}%
+                </div>
+            </div>
+        `;
+
+      hourlyContainer.innerHTML += hourlyCard;
+    });
   }
 }
 // Initialize the app

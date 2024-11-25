@@ -18,16 +18,7 @@ export const translations = {
     // UI Elements
     searchCity: "Search city",
     loading: "Loading...",
-    noResults: "No results found",
-    offline: "You are offline",
-    tryAgain: "Please try again",
     units: "°C / °F",
-
-    // Messages
-    noInternet: "No internet connection",
-    errorMessage: "Something went wrong. Please try again.",
-    addToFavorites: "Add to favorites",
-    removeFromFavorites: "Remove from favorites",
 
     // Welcome content translations
     welcomeTitle: "Umbrella or raincoat? We'll help you decide.",
@@ -35,10 +26,10 @@ export const translations = {
     // Feature Cards
     searchCityTitle: "Search Any City",
     searchCityDesc: "Get instant weather updates for any location worldwide",
-
     realTimeTitle: "Real-time Updates",
     realTimeDesc: "Stay informed with automatic weather refreshes",
-
+    favoritesTitle: "Favorites",
+    favoritesDesc: "Add your favorite cities for quick access",
     recentSearchesTitle: "Recent Searches",
     recentSearchesDesc: "Quickly access your frequently checked locations",
 
@@ -53,6 +44,15 @@ export const translations = {
     friday: "Friday",
     saturday: "Saturday",
     sunday: "Sunday",
+
+    // Short days
+    mondayShort: "Mon",
+    tuesdayShort: "Tue",
+    wednesdayShort: "Wed",
+    thursdayShort: "Thu",
+    fridayShort: "Fri",
+    saturdayShort: "Sat",
+    sundayShort: "Sun",
 
     // Months
     january: "January",
@@ -73,6 +73,21 @@ export const translations = {
     modalDescription: "Please select a specific location:",
     modalClose: "Close",
 
+    // Favorites
+    addToFavorites: "Add to favorites",
+    removeFromFavorites: "Remove from favorites",
+    noFavorites: "No favorite cities added yet",
+
+    // Error messages
+    noResults: "No locations found. Please try a different search.",
+    tryAgain: "Unable to fetch weather data. Please try again.",
+    networkError: "Please check your internet connection.",
+    invalidCity: "Please enter a valid city name.",
+    serverError: "Server error. Please try again later.",
+    errorLoading: "Error loading weather",
+    noInternet: "No internet connection",
+    offline: "You are offline",
+
     // Weather descriptions
     weatherDesc: {
       "clear sky": "Clear sky",
@@ -90,9 +105,27 @@ export const translations = {
       "heavy rain": "Heavy rain",
       drizzle: "Drizzle",
     },
-    noFavorites: "No favorite cities added yet",
-    errorLoading: "Error loading weather",
+
+    // Weather messages
+    weatherMessages: {
+      clear: {
+        day: "Perfect day for outdoor activities! Don't forget sunscreen!",
+        night: "Clear night sky - great for stargazing!",
+      },
+      partlyCloudy: {
+        day: "Pleasant weather for a walk or cycling!",
+        night: "Mild evening - perfect for an evening stroll!",
+      },
+      rain: {
+        light: "Light rain - grab an umbrella just in case!",
+        heavy: "Heavy rain - best to stay indoors today.",
+      },
+      snow: "Bundle up warm and watch the snowfall!",
+      extreme: "Weather alert! Stay safe and indoor today!",
+      default: "Stay hydrated and dress appropriately for today's weather!",
+    },
   },
+
   bs: {
     // Navigation & Headers
     search: "Pretraži grad...",
@@ -112,16 +145,7 @@ export const translations = {
     // UI Elements
     searchCity: "Pretraži grad",
     loading: "Učitavanje...",
-    noResults: "Nema rezultata",
-    offline: "Niste povezani",
-    tryAgain: "Pokušajte ponovo",
     units: "°C / °F",
-
-    // Messages
-    noInternet: "Nema internet konekcije",
-    errorMessage: "Nešto nije u redu. Molimo pokušajte ponovo.",
-    addToFavorites: "Dodaj u omiljene",
-    removeFromFavorites: "Ukloni iz omiljenih",
 
     // Welcome content translations
     welcomeTitle: "Suncobran ili kabanica? Pomoći ćemo ti da odlučiš.",
@@ -130,16 +154,17 @@ export const translations = {
     searchCityTitle: "Pretraži Bilo Koji Grad",
     searchCityDesc:
       "Dobijte trenutne vremenske informacije za bilo koju lokaciju širom svijeta",
-
     realTimeTitle: "Ažuriranja U Stvarnom Vremenu",
     realTimeDesc:
       "Budite informisani uz automatsko osvježavanje vremenske prognoze",
-
+    favoritesTitle: "Omiljeni Gradovi",
+    favoritesDesc: "Dodajte omiljene gradove za brzi pristup",
     recentSearchesTitle: "Nedavne Pretrage",
     recentSearchesDesc: "Brzo pristupite često provjeravanim lokacijama",
 
     // Alt text for images
     weatherIllustration: "Vremenska ilustracija",
+
     // Days
     monday: "Ponedjeljak",
     tuesday: "Utorak",
@@ -148,6 +173,15 @@ export const translations = {
     friday: "Petak",
     saturday: "Subota",
     sunday: "Nedjelja",
+
+    // Short days
+    mondayShort: "Pon",
+    tuesdayShort: "Uto",
+    wednesdayShort: "Sri",
+    thursdayShort: "Čet",
+    fridayShort: "Pet",
+    saturdayShort: "Sub",
+    sundayShort: "Ned",
 
     // Months
     january: "Januar",
@@ -162,29 +196,65 @@ export const translations = {
     october: "Oktobar",
     november: "Novembar",
     december: "Decembar",
+
     // Modal translations
     modalTitle: "Pronađeno više lokacija",
     modalDescription: "Molimo odaberite specifičnu lokaciju:",
     modalClose: "Zatvori",
-    noFavorites: "Još uvijek nema omiljenih gradova",
-    errorLoading: "Greška pri učitavanju vremena",
-  },
 
-  // Weather descriptions
-  weatherDesc: {
-    "clear sky": "Vedro nebo",
-    "few clouds": "Malo oblačno",
-    "scattered clouds": "Raštrkani oblaci",
-    "broken clouds": "Isprekidani oblaci",
-    "shower rain": "Pljusak",
-    rain: "Kiša",
-    thunderstorm: "Grmljavina",
-    snow: "Snijeg",
-    mist: "Magla",
-    "overcast clouds": "Oblačno",
-    "light rain": "Slaba kiša",
-    "moderate rain": "Umjerena kiša",
-    "heavy rain": "Jaka kiša",
-    drizzle: "Rominjanje",
+    // Favorites
+    addToFavorites: "Dodaj u omiljene",
+    removeFromFavorites: "Ukloni iz omiljenih",
+    noFavorites: "Još uvijek nema omiljenih gradova",
+
+    // Error messages
+    noResults:
+      "Nije pronađena nijedna lokacija. Molimo pokušajte drugačiju pretragu.",
+    tryAgain:
+      "Nije moguće dohvatiti podatke o vremenu. Molimo pokušajte ponovo.",
+    networkError: "Molimo provjerite internet konekciju.",
+    invalidCity: "Molimo unesite ispravan naziv grada.",
+    serverError: "Greška na serveru. Molimo pokušajte kasnije.",
+    errorLoading: "Greška pri učitavanju vremena",
+    noInternet: "Nema internet konekcije",
+    offline: "Niste povezani",
+
+    // Weather descriptions
+    weatherDesc: {
+      "clear sky": "Vedro nebo",
+      "few clouds": "Malo oblačno",
+      "scattered clouds": "Raštrkani oblaci",
+      "broken clouds": "Isprekidani oblaci",
+      "shower rain": "Pljusak",
+      rain: "Kiša",
+      thunderstorm: "Grmljavina",
+      snow: "Snijeg",
+      mist: "Magla",
+      "overcast clouds": "Oblačno",
+      "light rain": "Slaba kiša",
+      "moderate rain": "Umjerena kiša",
+      "heavy rain": "Jaka kiša",
+      drizzle: "Rosulja",
+    },
+
+    // Weather messages
+    weatherMessages: {
+      clear: {
+        day: "Savršen dan za aktivnosti na otvorenom! Ne zaboravite kremu za sunčanje!",
+        night: "Vedro nebo - idealno za posmatranje zvijezda!",
+      },
+      partlyCloudy: {
+        day: "Ugodno vrijeme za šetnju ili vožnju bicikla!",
+        night: "Ugodno veče - idealno za večernju šetnju!",
+      },
+      rain: {
+        light: "Slaba kiša - ponesite kišobran za svaki slučaj!",
+        heavy: "Jaka kiša - najbolje je ostati unutra danas.",
+      },
+      snow: "Utoplite se dobro i uživajte u snijegu!",
+      extreme: "Vremenska uzbuna! Ostanite na sigurnom unutra danas!",
+      default:
+        "Pijte dovoljno vode i obucite se prikladno za današnje vrijeme!",
+    },
   },
 };
