@@ -33,11 +33,11 @@ A sleek and responsive weather application that provides real-time weather infor
 
 Desktop
 
-![127 0 0 1_5500_ (12)](https://github.com/user-attachments/assets/cb096191-c9ad-4ac3-b63d-28fcefc784ed)
+![127 0 0 1_5500_ (14)](https://github.com/user-attachments/assets/7a9384af-be63-4d6a-ae4a-f6e2973d660b)
 
 Mobile
 
-![127 0 0 1_5500_ (13)](https://github.com/user-attachments/assets/245e5156-2e89-4b42-9274-55af9f86dc03)
+![127 0 0 1_5500_ (15)](https://github.com/user-attachments/assets/7a3e5caf-1031-4732-95ec-02473a3c72af)
 
 ## Installation & Configuration
 
