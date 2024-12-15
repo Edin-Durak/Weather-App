@@ -1,6 +1,6 @@
 # Modern Weather App
 
-A sleek and responsive weather application that provides real-time weather information and forecasts for cities worldwide.
+A sleek and responsive weather application that provides real-time weather information and forecasts for cities worldwide, with multi-language support and dynamic weather messages.
 
 ## Features
 
@@ -10,8 +10,8 @@ A sleek and responsive weather application that provides real-time weather infor
 - 🔄 Auto-refresh weather data every 30 minutes
 - 📍 Recent searches history
 - ⭐ Favorites system for quick access
-- 🌓 Temperature unit toggle (°C/°F)
-- 📊 5-day weather forecast
+- 🌓 Temperature unit toggle (°C/°F) with persistence
+- 📊 5-day weather forecast with hourly breakdown
 - 🌤️ Dynamic weather messages based on conditions
 - 🌙 Day/Night detection for contextual messages
 - 🔤 Multi-language support (English/Bosnian)
@@ -27,6 +27,7 @@ A sleek and responsive weather application that provides real-time weather infor
 - OpenWeather API
 - Bootstrap 5
 - Font Awesome Icons
+- Animate.css
 
 ## Screenshots
 
@@ -71,14 +72,14 @@ Mobile
 
 ```
 weather-app/
-├── index.html # Main HTML file
-├── styles.css # Global styles and animations
+├── index.html          # Main HTML file
+├── styles.css         # Global styles and animations
 ├── images/
-│ ├── cloudy.png # Favicon
-│ └── weather-home.jpg# Welcome illustration
+│ ├── cloudy.png      # Favicon
+│ └── weather-home.jpg # Welcome illustration
 ├── js/
-│ ├── app.js # Main application logic
-│ ├── config.js # API configuration
+│ ├── app.js          # Main application logic
+│ ├── config.js       # API configuration
 │ └── translations.js # Language translations
 └── README.md
 ```
@@ -104,34 +105,6 @@ Features of the translation system:
 
 ## Development Features
 
-Previous features plus:
-
-- Multi-language support with dynamic switching
-- Typing animation for welcome messages
-- Enhanced animations using Animate.css
-- Improved accessibility with ARIA labels
-- Smooth transitions between languages
-- Localized date and time formatting
-
-## Configuration Details
-
-The `config.js` file is essential for the application to work. It should export an object with the following structure:
-
-```javascript
-const config = {
-  WEATHER_API_KEY: "your_api_key_here", // Your OpenWeather API key
-};
-```
-
-Important notes about configuration:
-
-- Never commit your actual API key to version control
-- Keep your API key private and secure
-- The app won't function without a valid API key
-- Free tier API keys have rate limits (60 calls/minute)
-
-## Development Features
-
 - ES6+ JavaScript with modern class-based architecture
 - CSS Variables for dynamic theming
 - Responsive design with mobile-first approach
@@ -153,14 +126,24 @@ The app integrates with OpenWeather API using three main endpoints:
    - Endpoint: `/data/2.5/weather`
    - Used for real-time weather information
 
-2. 5-Day Forecast
+2. 5-Day/Hourly Forecast
 
    - Endpoint: `/data/2.5/forecast`
    - Provides 3-hour step forecast data
+   - Used for both 5-day and hourly forecasts
 
 3. Geocoding API
    - Endpoint: `/geo/1.0/direct`
    - Handles city search and coordinates
+
+## Configuration Details
+
+Important notes about configuration:
+
+- Never commit your actual API key to version control
+- Keep your API key private and secure
+- The app won't function without a valid API key
+- Free tier API keys have rate limits (60 calls/minute)
 
 ## License
 
