@@ -7,6 +7,7 @@ class WeatherApp {
     this.API_KEY = config.WEATHER_API_KEY;
     this.isMetric = true;
     this.autoRefreshInterval = 30 * 60 * 1000; // 30 minutes
+    this.unitToggle = document.getElementById("unitToggle");
 
     // First, initialize all elements
     this.initializeElements();
@@ -57,6 +58,11 @@ class WeatherApp {
     this.unitToggle.addEventListener("click", () => {
       this.isMetric = !this.isMetric;
       this.unitToggle.classList.add("switching");
+
+      // Update the button text to show active unit
+      this.unitToggle.innerHTML = this.isMetric
+        ? '<span class="active">°C</span> / <span>°F</span>'
+        : '<span>°C</span> / <span class="active">°F</span>';
 
       // Remove the class after animation completes
       setTimeout(() => {
